@@ -14,16 +14,13 @@ public class Account {
     private LocalDateTime createdAt;
     private List<Transaction> transactionList;
 
-    public Account(Client client) {
+    public Account(Client client, String numberAccount) {
         this.client = client;
         this.numberAccount = numberAccount;
         this.balance = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
         this.transactionList = new ArrayList<>();
     }
-
-
-    // getters
 
     public Long getId() {
         return id;
@@ -45,18 +42,16 @@ public class Account {
         return createdAt;
     }
 
-    // setters
+    public List<Transaction> getTransactionList() { return transactionList; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
 
     public void setClient(Client client) {
         this.client = client;
     }
 
-    public void setSaldo(BigDecimal saldo) {
-        this.saldo = saldo;
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
@@ -71,5 +66,15 @@ public class Account {
         this.transactionList = transactionList;
     }
 
+    public void addTransaction(Transaction transaction){
+        this.transactionList.add(transaction);
+    }
 
+    @Override
+    public String toString(){
+        return String.format("Account{numberAccount='%s', client='%s', balance=%s",
+                numberAccount,
+                client != null ? client.getName() : "Client not found",
+                balance.toPlainString());
+    }
 }
