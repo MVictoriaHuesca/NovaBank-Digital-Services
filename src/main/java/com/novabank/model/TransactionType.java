@@ -2,7 +2,7 @@ package com.novabank.model;
 
 public enum TransactionType {
     DEPOSIT,
-    RETIREMENT,
+    WITHDRAWAL,
     OUTGOING_TRANSFER,
     INCOMING_TRANSFER
 }

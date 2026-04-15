@@ -88,6 +88,4 @@ public class Client {
         return String.format("Client{id=%d, name='%s %s', dni='%s', email='%s', phone='%s'}",
                 id, name, surname, dni, email, phone);
     }
-
-
 }
