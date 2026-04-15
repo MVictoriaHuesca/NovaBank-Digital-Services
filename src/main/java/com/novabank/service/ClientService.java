@@ -29,10 +29,10 @@ public class ClientService {
         return clientRepository.save(new Client(trimmedName, trimmedSurname, trimmedDni, trimmedEmail, trimmedPhone));
     }
 
-    public Client searchById(Long id) {
-        if (id == null) throw new IllegalArgumentException("ERROR: ID cannot be null.");
-        return clientRepository.searchById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ERROR: Could not find a client with ID " + id + "."));
+    public Client searchById(Long clientId) {
+        if (clientId == null) throw new IllegalArgumentException("ERROR: ID cannot be null.");
+        return clientRepository.searchById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("ERROR: Could not find a client with ID " + clientId + "."));
     }
 
     public Client searchByDni(String dni) {
