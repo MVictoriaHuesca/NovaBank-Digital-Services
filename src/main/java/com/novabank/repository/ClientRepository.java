@@ -24,7 +24,6 @@ public class ClientRepository {
     }
 
     public Optional<Client> searchByDni(String dni) {
-        if (dni == null || dni.isBlank()) throw new IllegalArgumentException("DNI cannot be null or blank");
         return clients.values().stream()
                 .filter(c -> c.getDni().equals(dni))
                 .findFirst();
@@ -35,18 +34,15 @@ public class ClientRepository {
     }
 
     public boolean existsByDni(String dni) {
-        if (dni == null || dni.isBlank()) throw new IllegalArgumentException("DNI cannot be null or blank");
         return clients.values().stream().anyMatch(c -> c.getDni().equalsIgnoreCase(dni));
     }
 
     public boolean existsByEmail(String email) {
-        if (email == null || email.isBlank()) throw new IllegalArgumentException("Email cannot be null or blank");
         return clients.values().stream()
                 .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
     }
 
     public boolean existsByPhone(String phone) {
-        if (phone == null || phone.isBlank()) throw new IllegalArgumentException("Phone cannot be null or blank");
         return clients.values().stream()
                 .anyMatch(c -> c.getPhone().equals(phone));
     }

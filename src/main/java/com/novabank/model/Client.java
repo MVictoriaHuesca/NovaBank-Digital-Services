@@ -22,9 +22,6 @@ public class Client {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Empty constructor
-    public Client(){};
-
     // Getters
     public Long getId(){
         return id;
