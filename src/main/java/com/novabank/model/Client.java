@@ -21,7 +21,7 @@ public class Client {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
@@ -78,7 +78,7 @@ public class Client {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("Client{id=%d, name='%s %s', dni='%s', email='%s', phone='%s'}",
                 id, name, surname, dni, email, phone);
     }

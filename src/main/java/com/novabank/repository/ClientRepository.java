@@ -2,7 +2,11 @@ package com.novabank.repository;
 
 import com.novabank.model.Client;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class ClientRepository {
     private final Map<Long, Client> clients = new HashMap<>();
@@ -10,7 +14,9 @@ public class ClientRepository {
     private long nextId = 1001L;
 
     public Client save(Client client) {
-        if (client == null) throw new IllegalArgumentException("Client cannot be null.");
+        if (client == null) {
+            throw new IllegalArgumentException("Client cannot be null.");
+        }
         if (client.getId() == null) {
             client.setId(nextId++);
         }
@@ -19,7 +25,9 @@ public class ClientRepository {
     }
 
     public Optional<Client> searchById(Long id) {
-        if (id == null) throw new IllegalArgumentException("ID cannot be null.");
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null.");
+        }
         return Optional.ofNullable(clients.get(id));
     }
 
@@ -34,16 +42,16 @@ public class ClientRepository {
     }
 
     public boolean existsByDni(String dni) {
-        return clients.values().stream().anyMatch(c -> c.getDni().equalsIgnoreCase(dni));
+        return clients.values().stream()
+                .anyMatch(c -> c.getDni().equals(dni));
     }
 
     public boolean existsByEmail(String email) {
         return clients.values().stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
+                .anyMatch(c -> c.getEmail().equals(email));
     }
 
     public boolean existsByPhone(String phone) {
-        return clients.values().stream()
-                .anyMatch(c -> c.getPhone().equals(phone));
+        return clients.values().stream().anyMatch(c -> c.getPhone().equals(phone));
     }
 }
