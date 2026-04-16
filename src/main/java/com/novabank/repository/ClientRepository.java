@@ -52,6 +52,7 @@ public class ClientRepository {
     }
 
     public boolean existsByPhone(String phone) {
-        return clients.values().stream().anyMatch(c -> c.getPhone().equals(phone));
+        return clients.values().stream()
+                .anyMatch(c -> c.getPhone().equals(phone));
     }
 }

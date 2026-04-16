@@ -69,11 +69,11 @@ public class TransactionService {
         }
     }
 
-    public BigDecimal getBalance(String accountNumber){
+    public BigDecimal getBalance(String accountNumber) {
         return searchAccountOrThrow(accountNumber).getBalance();
     }
 
-    public List<Transaction> getHistory(String accountNumber){
+    public List<Transaction> getHistory(String accountNumber) {
         searchAccountOrThrow(accountNumber);
         return transactionRepository.searchByAccountNumber(accountNumber);
     }
@@ -113,6 +113,6 @@ public class TransactionService {
         if (accountNumber == null || accountNumber.isBlank()) {
             throw new IllegalArgumentException("ERROR: Account number cannot be null or blank.");
         }
-        return accountService.searchByNumberAccount(accountNumber);
+        return accountService.searchByAccountNumber(accountNumber);
     }
 }

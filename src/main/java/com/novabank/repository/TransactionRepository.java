@@ -3,7 +3,10 @@ package com.novabank.repository;
 import com.novabank.model.Transaction;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TransactionRepository {
     private final Map<Long, Transaction> transactions = new HashMap<>();
@@ -11,7 +14,9 @@ public class TransactionRepository {
     private long nextId = 1L;
 
     public Transaction save(Transaction transaction) {
-        if (transaction == null) throw new IllegalArgumentException("Transaction cannot be null.");
+        if (transaction == null) {
+            throw new IllegalArgumentException("Transaction cannot be null.");
+        }
         transaction.setId(nextId++);
         transactions.put(transaction.getId(), transaction);
         return transaction;

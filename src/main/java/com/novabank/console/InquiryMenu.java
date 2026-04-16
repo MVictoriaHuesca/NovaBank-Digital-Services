@@ -1,6 +1,7 @@
 package com.novabank.console;
 
 import com.novabank.model.Transaction;
+import com.novabank.model.TransactionType;
 import com.novabank.service.TransactionService;
 
 import java.math.BigDecimal;
@@ -112,7 +113,7 @@ public class InquiryMenu {
 
         for (Transaction t : transactions) {
             String sign = (t.getType().name().contains("OUTGOING") ||
-                    t.getType().name().equals("WITHDRAWAL")) ? "-" : "+";
+                    t.getType() == TransactionType.WITHDRAWAL) ? "-" : "+";
             System.out.printf("%-21s | %-26s | %s%,.2f €%n",
                     t.getCreatedAt().format(DATE_TIME_FORMAT),
                     t.getType(),

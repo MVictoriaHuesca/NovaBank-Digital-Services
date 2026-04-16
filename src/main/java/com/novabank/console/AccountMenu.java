@@ -50,7 +50,7 @@ public class AccountMenu {
             System.out.println("Account number: " + account.getAccountNumber());
             System.out.println("Account holder: " + account.getClient().getName() + " " + account.getClient().getSurname()
                     + " (ID: " + account.getClient().getId() + ")");
-            System.out.println("Starting balance:    0,00 €");
+            System.out.printf("Starting balance:    %,.2f €%n", account.getBalance());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
@@ -70,7 +70,7 @@ public class AccountMenu {
 
             System.out.println();
             System.out.println(
-                    "Client accounts " + accounts.get(0).getClient().getName() + " " + accounts.get(0).getClient().getSurname() + ":");
+                    "Accounts of " + accounts.get(0).getClient().getName() + " " + accounts.get(0).getClient().getSurname() + ":");
             System.out.printf("%-26s | %s%n", "Account number", "Balance");
             System.out.println("-".repeat(45));
             for (Account a : accounts) {
@@ -87,7 +87,7 @@ public class AccountMenu {
         System.out.print("Introduce account number: ");
         String number = scanner.nextLine().trim();
         try {
-            Account a = accountService.searchByNumberAccount(number);
+            Account a = accountService.searchByAccountNumber(number);
             System.out.println();
             System.out.println("Account number: " + a.getAccountNumber());
             System.out.println("Account holder: " + a.getClient().getName() + " " + a.getClient().getSurname());

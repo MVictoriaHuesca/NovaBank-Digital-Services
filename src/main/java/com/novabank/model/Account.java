@@ -66,7 +66,7 @@ public class Account {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("Account{accountNumber='%s', client='%s', balance=%s}",
                 accountNumber,
                 client != null ? client.getName() : "Client not found",

@@ -29,7 +29,7 @@ public class AccountService {
         return accountRepository.searchByClientId(clientId);
     }
 
-    public Account searchByNumberAccount(String accountNumber) {
+    public Account searchByAccountNumber(String accountNumber) {
         if (accountNumber == null || accountNumber.isBlank())
             throw new IllegalArgumentException("ERROR: Account number cannot be null or blank.");
         return accountRepository.searchByAccountNumber(accountNumber)

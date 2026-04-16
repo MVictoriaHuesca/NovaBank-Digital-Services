@@ -11,7 +11,7 @@ public class Transaction {
     private BigDecimal amount;
     private LocalDateTime createdAt;
 
-    public Transaction(Account account, TransactionType type, BigDecimal amount){
+    public Transaction(Account account, TransactionType type, BigDecimal amount) {
         this.account = account;
         this.type = type;
         this.amount = amount;

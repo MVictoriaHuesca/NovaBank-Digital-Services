@@ -61,7 +61,7 @@ public class ClientServiceTest {
     }
 
     @Test
-    @DisplayName("Searching by DNI number should return the correct client")
+    @DisplayName("Searching by DNI should return the correct client")
     void searchByDni_withExistingDni_shouldReturnClient() {
         clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
 

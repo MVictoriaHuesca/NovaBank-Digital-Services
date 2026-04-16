@@ -14,15 +14,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
-    private AccountRepository accountRepository;
-    private ClientRepository clientRepository;
+    private AccountRepository accountRepository;;
     private ClientService clientService;
     private AccountService accountService;
 
     @BeforeEach
     void setUp() {
-        clientRepository = new ClientRepository();
-        clientService = new ClientService(clientRepository);
+        clientService = new ClientService(new ClientRepository());
         accountRepository = new AccountRepository();
         accountService = new AccountService(accountRepository, clientService);
     }
@@ -30,17 +28,14 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Creating an account for an existing customer must return an account with IBAN and zero balance")
     void createAccount_withExistingClient_shouldReturnValidAccount() {
-        // Arrange
         Client client = clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
 
-        // Act
         Account account = accountService.createAccount(client.getId());
 
-        // Assert
         assertNotNull(account);
         assertNotNull(account.getAccountNumber());
         assertTrue(account.getAccountNumber().startsWith("ES"));
-        assertEquals(0, account.getBalance().compareTo(java.math.BigDecimal.ZERO));
+        assertEquals(0, account.getBalance().compareTo(BigDecimal.ZERO));
         assertEquals(client.getId(), account.getClient().getId());
     }
 
@@ -85,21 +80,21 @@ public class AccountServiceTest {
     @DisplayName("Searching for an account by a non-existent number should throw an exception")
     void searchByNumber_withNonexistentNumber_shouldThrowException() {
         assertThrows(IllegalArgumentException.class, () ->
-                accountService.searchByNumberAccount("ES00000000000000000000"));
+                accountService.searchByAccountNumber("ES00000000000000000000"));
     }
 
     @Test
     @DisplayName("Searching by null account number should throw an exception")
     void searchByNumber_withNullNumber_shouldThrowException() {
         assertThrows(IllegalArgumentException.class, () ->
-                accountService.searchByNumberAccount(null));
+                accountService.searchByAccountNumber(null));
     }
 
     @Test
     @DisplayName("Searching by blank account number should throw an exception")
     void searchByNumber_withBlankNumber_shouldThrowException() {
         assertThrows(IllegalArgumentException.class, () ->
-                accountService.searchByNumberAccount("   "));
+                accountService.searchByAccountNumber("   "));
     }
 
     @Test

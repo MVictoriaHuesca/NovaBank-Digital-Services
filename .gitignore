@@ -32,5 +32,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
-.idea/misc.xml
-target
+
