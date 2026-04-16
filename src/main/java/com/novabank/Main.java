@@ -2,6 +2,7 @@ package com.novabank;
 
 import com.novabank.console.AccountMenu;
 import com.novabank.console.ClientMenu;
+import com.novabank.console.InquiryMenu;
 import com.novabank.console.TransactionMenu;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.ClientRepository;
@@ -28,6 +29,7 @@ public class Main {
         ClientMenu clientMenu = new ClientMenu(clientService, scanner);
         AccountMenu accountMenu = new AccountMenu(accountService, scanner);
         TransactionMenu transactionmenu = new TransactionMenu(transactionService, scanner);
+        InquiryMenu inquiryMenu = new InquiryMenu(transactionService, scanner);
 
         boolean running = true;
         while(running) {
@@ -38,6 +40,7 @@ public class Main {
                 case "1" -> clientMenu.show();
                 case "2" -> accountMenu.show();
                 case "3" -> transactionmenu.show();
+                case "4" -> inquiryMenu.show();
                 case "5" -> {
                     System.out.println("See you soon.");
                     running = false;
