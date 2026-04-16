@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
-    private AccountRepository accountRepository;;
+    private AccountRepository accountRepository;
     private ClientService clientService;
     private AccountService accountService;
 
