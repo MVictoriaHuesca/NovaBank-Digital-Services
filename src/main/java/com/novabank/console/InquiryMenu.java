@@ -112,7 +112,7 @@ public class InquiryMenu {
 
         for (Transaction t : transactions) {
             String sign = (t.getType().name().contains("OUTGOING") ||
-                    t.getType().name().equals("RETIRO")) ? "-" : "+";
+                    t.getType().name().equals("WITHDRAWAL")) ? "-" : "+";
             System.out.printf("%-21s | %-26s | %s%,.2f €%n",
                     t.getCreatedAt().format(DATE_TIME_FORMAT),
                     t.getType(),

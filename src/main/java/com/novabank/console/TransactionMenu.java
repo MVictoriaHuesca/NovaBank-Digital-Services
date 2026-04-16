@@ -76,7 +76,7 @@ public class TransactionMenu {
         System.out.println();
         System.out.print("Origin account number: ");
         String from  = scanner.nextLine().trim();
-        System.out.print("Destinatary account number: ");
+        System.out.print("Destination account number: ");
         String to = scanner.nextLine().trim();
         System.out.print("Amount to transfer (€): ");
         try {
@@ -92,7 +92,11 @@ public class TransactionMenu {
     }
 
     private BigDecimal readAmount() {
-        String input = scanner.nextLine().trim().replace(",", ".");
-        return new BigDecimal(input);
+        try {
+            String input = scanner.nextLine().trim().replace(",", ".");
+            return new BigDecimal(input);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("ERROR: Invalid amount. Please enter a numeric value.");
+        }
     }
 }
