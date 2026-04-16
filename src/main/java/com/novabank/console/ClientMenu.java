@@ -24,7 +24,7 @@ public class ClientMenu {
             System.out.println("2. Search client");
             System.out.println("3. List clients");
             System.out.println("4. Back");
-            System.out.print("Select option: ");
+            System.out.print("Select an option: ");
 
             switch (scanner.nextLine().trim()) {
                 case "1" -> createClient();
@@ -86,8 +86,10 @@ public class ClientMenu {
                     System.out.println(e.getMessage());
                 }
             }
-            case "3" -> show();
-            default -> System.out.println("Invalid option. Introduce a number between 1 and 4.");
+            case "3" -> {
+                return;
+            }
+            default -> System.out.println("Invalid option. Introduce a number between 1 and 3.");
         }
     }
 
@@ -111,13 +113,12 @@ public class ClientMenu {
         }
 
         System.out.printf("%-6s | %-20s | %-12s | %-25s | %-12s%n",
-                "ID", "Name", "DNI", "Email", "Teléfono");
+                "ID", "Name", "DNI", "Email", "Phone");
         System.out.println("-".repeat(85));
-
 
         for (Client c : clients) {
             String fullName = c.getName() + " " + c.getSurname();
-                    System.out.printf("%-6d | %-20s | %-12s | %-25s | %-12s%n",
+            System.out.printf("%-6d | %-20s | %-12s | %-25s | %-12s%n",
                     c.getId(),
                     fullName,
                     c.getDni(),
