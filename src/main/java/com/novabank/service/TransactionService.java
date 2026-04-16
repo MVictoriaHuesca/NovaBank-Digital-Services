@@ -79,17 +79,21 @@ public class TransactionService {
     }
 
     public List<Transaction> getHistoryByDate(String accountNumber, LocalDate from, LocalDate to) {
-        if (from == null) throw new IllegalArgumentException("ERROR: Start date cannot be null.");
-        if (to == null) throw new IllegalArgumentException("ERROR: End date cannot be null.");
+        if (from == null) {
+            throw new IllegalArgumentException("ERROR: Start date cannot be null.");
+        }
+        if (to == null) {
+            throw new IllegalArgumentException("ERROR: End date cannot be null.");
+        }
         searchAccountOrThrow(accountNumber);
         return transactionRepository.searchByAccountNumberAndDateRange(accountNumber, from, to);
     }
 
-    private void validateEnoughBalance(Account from, BigDecimal amount) {
-        if(from.getBalance().compareTo(amount) < 0) {
+    private void validateEnoughBalance(Account account, BigDecimal amount) {
+        if(account.getBalance().compareTo(amount) < 0) {
             throw new IllegalArgumentException(
                     String.format("ERROR: Insufficient balance. Available balance: %.2f €. Requested amount: %.2f €.",
-                            from.getBalance(), amount));
+                            account.getBalance(), amount));
         }
     }
 
