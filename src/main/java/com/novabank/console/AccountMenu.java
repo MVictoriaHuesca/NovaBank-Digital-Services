@@ -92,7 +92,7 @@ public class AccountMenu {
             System.out.println("Account number: " + a.getNumberAccount());
             System.out.println("Account holder: " + a.getClient().getName() + " " + a.getClient().getSurname());
             System.out.printf ("Balance:            %,.2f €%n", a.getBalance());
-            System.out.println("Creation date:" + a.getCreatedAt().format(DATE_FORMAT));
+            System.out.println("Creation date: " + a.getCreatedAt().format(DATE_FORMAT));
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

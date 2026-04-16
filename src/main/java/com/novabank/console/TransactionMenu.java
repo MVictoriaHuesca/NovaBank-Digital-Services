@@ -19,7 +19,7 @@ public class TransactionMenu {
         boolean back = false;
         while (!back) {
             System.out.println();
-            System.out.println("--- FINANCTIAL OPERATIONS ---");
+            System.out.println("--- FINANCIAL OPERATIONS ---");
             System.out.println("1. Deposit money");
             System.out.println("2. Withdrawal");
             System.out.println("3. Transfer between accounts");
@@ -38,7 +38,7 @@ public class TransactionMenu {
 
     private void deposit() {
         System.out.println();
-        System.out.print("Número de cuenta: ");
+        System.out.print("Account number: ");
         String number = scanner.nextLine().trim();
         System.out.print("Amount to deposit (€): ");
         try {

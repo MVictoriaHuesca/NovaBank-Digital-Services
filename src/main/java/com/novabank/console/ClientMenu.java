@@ -19,7 +19,7 @@ public class ClientMenu {
         boolean back = false;
         while (!back) {
             System.out.println();
-            System.out.println("--- CLIENTS MANAGEMENT ---");
+            System.out.println("--- CLIENT MANAGEMENT ---");
             System.out.println("1. Create new client");
             System.out.println("2. Search client");
             System.out.println("3. List clients");

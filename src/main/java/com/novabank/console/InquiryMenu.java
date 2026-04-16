@@ -1,7 +1,6 @@
 package com.novabank.console;
 
 import com.novabank.model.Transaction;
-import com.novabank.service.AccountService;
 import com.novabank.service.TransactionService;
 
 import java.math.BigDecimal;
@@ -86,17 +85,17 @@ public class InquiryMenu {
             LocalDate to = LocalDate.parse(toStr, DATE_FORMAT);
 
             if (to.isBefore(from)) {
-                System.out.println("ERROR: La fecha fin no puede ser anterior a la fecha inicio.");
+                System.out.println("ERROR: End date cannot be before start date.");
                 return;
             }
 
             List<Transaction> transactions =
                     transactionService.getHistoryByDate(number, from, to);
             System.out.println();
-            System.out.println("Movimientos del " + fromStr + " al " + toStr + ":");
+            System.out.println("Movements from " + fromStr + " to " + toStr + ":");
             showMovements(transactions);
         } catch (DateTimeParseException e) {
-            System.out.println("ERROR: Formato de fecha no válido. Use yyyy-MM-dd (ejemplo: 2024-03-15).");
+            System.out.println("ERROR: Invalid date format. Use yyyy-MM-dd (e.g. 2024-03-15).");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

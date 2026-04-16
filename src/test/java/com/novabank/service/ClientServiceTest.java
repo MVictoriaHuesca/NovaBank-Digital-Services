@@ -14,7 +14,6 @@ public class ClientServiceTest {
     private ClientRepository clientRepository;
     private ClientService clientService;
 
-    // Se ejecuta antes de cada test: crea instancias limpias
     @BeforeEach
     void setUp() {
         clientRepository = new ClientRepository();
@@ -144,7 +143,7 @@ public class ClientServiceTest {
 
     @Test
     @DisplayName("Creating a client with a duplicate phone number should throw an exception")
-    void createCliente_withDuplicatedPhone_shouldThrowException() {
+    void createClient_withDuplicatedPhone_shouldThrowException() {
         // Arrange
         clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600000001");
 
@@ -179,5 +178,55 @@ public class ClientServiceTest {
     void searchById_withNonExistingId_shouldThrowException() {
         assertThrows(IllegalArgumentException.class, () ->
                 clientService.searchById(9999L));
+    }
+
+    @Test
+    @DisplayName("Searching by null ID should throw an exception")
+    void searchById_withNullId_shouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                clientService.searchById(null));
+    }
+
+    @Test
+    @DisplayName("Searching by null DNI should throw an exception")
+    void searchByDni_withNullDni_shouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                clientService.searchByDni(null));
+    }
+
+    @Test
+    @DisplayName("Searching by blank DNI should throw an exception")
+    void searchByDni_withBlankDni_shouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                clientService.searchByDni("   "));
+    }
+
+    @Test
+    @DisplayName("Searching by DNI in lowercase should find the client saved with uppercase")
+    void searchByDni_withLowercaseDni_shouldReturnClient() {
+        clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
+
+        Client found = clientService.searchByDni("12345678a");
+
+        assertNotNull(found);
+        assertEquals("12345678A", found.getDni());
+    }
+
+    @Test
+    @DisplayName("Listing clients with no clients should return an empty list")
+    void listClients_withNoClients_shouldReturnEmptyList() {
+        List<Client> list = clientService.listClients();
+
+        assertNotNull(list);
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Saving a client with whitespace around the name should trim and store it correctly")
+    void createClient_withWhitespaceName_shouldStoreTrimmedName() {
+        Client result = clientService.save("  Juan  ", "  Pérez  ", "12345678A", "juan@email.com", "600123456");
+
+        assertEquals("Juan", result.getName());
+        assertEquals("Pérez", result.getSurname());
     }
 }

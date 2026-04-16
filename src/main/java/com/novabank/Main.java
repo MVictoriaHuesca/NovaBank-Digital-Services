@@ -28,7 +28,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         ClientMenu clientMenu = new ClientMenu(clientService, scanner);
         AccountMenu accountMenu = new AccountMenu(accountService, scanner);
-        TransactionMenu transactionmenu = new TransactionMenu(transactionService, scanner);
+        TransactionMenu transactionMenu = new TransactionMenu(transactionService, scanner);
         InquiryMenu inquiryMenu = new InquiryMenu(transactionService, scanner);
 
         boolean running = true;
@@ -39,7 +39,7 @@ public class Main {
             switch(option) {
                 case "1" -> clientMenu.show();
                 case "2" -> accountMenu.show();
-                case "3" -> transactionmenu.show();
+                case "3" -> transactionMenu.show();
                 case "4" -> inquiryMenu.show();
                 case "5" -> {
                     System.out.println("See you soon.");
