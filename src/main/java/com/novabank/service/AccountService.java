@@ -7,11 +7,10 @@ import com.novabank.repository.AccountRepository;
 import java.util.List;
 
 public class AccountService {
-    private long nextAccountNumber = 1L;
 
     private final AccountRepository accountRepository;
     private final ClientService clientService;
-
+    private long nextAccountNumber = 1L;
 
     public AccountService(AccountRepository accountRepository, ClientService clientService) {
         this.accountRepository = accountRepository;
@@ -20,8 +19,8 @@ public class AccountService {
 
     public Account createAccount(Long clientId) {
         Client client = clientService.searchById(clientId);
-        String numberAccount = generateAccountNumber();
-        Account account = new Account(client, numberAccount);
+        String accountNumber = generateAccountNumber();
+        Account account = new Account(client, accountNumber);
         return accountRepository.save(account);
     }
 
