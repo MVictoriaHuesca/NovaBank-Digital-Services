@@ -22,9 +22,6 @@ public class Client {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Empty constructor
-    public Client(){};
-
     // Getters
     public Long getId(){
         return id;
@@ -88,6 +85,4 @@ public class Client {
         return String.format("Client{id=%d, name='%s %s', dni='%s', email='%s', phone='%s'}",
                 id, name, surname, dni, email, phone);
     }
-
-
 }
