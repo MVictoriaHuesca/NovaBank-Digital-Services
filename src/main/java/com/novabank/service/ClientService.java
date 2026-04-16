@@ -16,8 +16,8 @@ public class ClientService {
     public Client save(String name, String surname, String dni, String email, String phone) {
         String trimmedName = name != null ? name.trim() : null;
         String trimmedSurname = surname != null ? surname.trim() : null;
-        String trimmedDni = dni != null ? dni.trim().toLowerCase() : null;
-        String trimmedEmail = email != null ? email.trim() : null;
+        String trimmedDni = dni != null ? dni.trim().toUpperCase() : null;
+        String trimmedEmail = email != null ? email.trim().toLowerCase() : null;
         String trimmedPhone = phone != null ? phone.trim() : null;
 
         validateRequiredFields(trimmedName, trimmedSurname, trimmedDni, trimmedEmail, trimmedPhone);
