@@ -1,5 +1,6 @@
 package com.novabank;
 
+import com.novabank.console.AccountMenu;
 import com.novabank.console.ClientMenu;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.ClientRepository;
@@ -24,6 +25,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         ClientMenu clientMenu = new ClientMenu(clientService, scanner);
+        AccountMenu accountMenu = new AccountMenu(accountService, scanner);
 
         boolean running = true;
         while(running) {
@@ -32,6 +34,7 @@ public class Main {
 
             switch(option) {
                 case "1" -> clientMenu.show();
+                case "2" -> accountMenu.show();
                 case "5" -> {
                     System.out.println("See you soon.");
                     running = false;
