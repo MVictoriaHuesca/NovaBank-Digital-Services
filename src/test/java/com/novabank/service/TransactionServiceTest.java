@@ -46,7 +46,7 @@ public class TransactionServiceTest {
     void deposit_withValidAmount_shouldIncreaseBalance() {
         Account account = createAccount();
 
-        Account result = transactionService.deposit(account.getNumberAccount(), new BigDecimal("100.00"));
+        Account result = transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
 
         assertEquals(0, new BigDecimal("100.00").compareTo(result.getBalance()));
     }
@@ -56,8 +56,8 @@ public class TransactionServiceTest {
     void deposit_withValidAmount_shouldRecordTransaction() {
         Account account = createAccount();
 
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("200.00"));
-        List<Transaction> history = transactionService.getHistory(account.getNumberAccount());
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("200.00"));
+        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
 
         assertEquals(1, history.size());
         assertEquals(TransactionType.DEPOSIT, history.get(0).getType());
@@ -70,7 +70,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getNumberAccount(), null));
+                transactionService.deposit(account.getAccountNumber(), null));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getNumberAccount(), BigDecimal.ZERO));
+                transactionService.deposit(account.getAccountNumber(), BigDecimal.ZERO));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getNumberAccount(), new BigDecimal("-50.00")));
+                transactionService.deposit(account.getAccountNumber(), new BigDecimal("-50.00")));
     }
 
     @Test
@@ -109,9 +109,9 @@ public class TransactionServiceTest {
     @DisplayName("Withdrawing a valid amount should decrease the account balance")
     void withdrawal_withValidAmount_shouldDecreaseBalance() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("300.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
 
-        Account result = transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("100.00"));
+        Account result = transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
 
         assertEquals(0, new BigDecimal("200.00").compareTo(result.getBalance()));
     }
@@ -120,10 +120,10 @@ public class TransactionServiceTest {
     @DisplayName("Withdrawing a valid amount should record a WITHDRAWAL transaction")
     void withdrawal_withValidAmount_shouldRecordTransaction() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("300.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
 
-        transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("100.00"));
-        List<Transaction> history = transactionService.getHistory(account.getNumberAccount());
+        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
+        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
 
         assertTrue(history.stream().anyMatch(t -> t.getType() == TransactionType.WITHDRAWAL));
     }
@@ -132,9 +132,9 @@ public class TransactionServiceTest {
     @DisplayName("Withdrawing the exact balance should leave the account at zero")
     void withdrawal_withExactBalance_shouldLeaveZeroBalance() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("100.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
 
-        Account result = transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("100.00"));
+        Account result = transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
 
         assertEquals(0, BigDecimal.ZERO.compareTo(result.getBalance()));
     }
@@ -143,10 +143,10 @@ public class TransactionServiceTest {
     @DisplayName("Withdrawing more than the available balance should throw an exception")
     void withdrawal_withInsufficientBalance_shouldThrowException() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("50.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("50.00"));
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("100.00")));
+                transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00")));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("10.00")));
+                transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("10.00")));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getNumberAccount(), null));
+                transactionService.withdrawal(account.getAccountNumber(), null));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getNumberAccount(), BigDecimal.ZERO));
+                transactionService.withdrawal(account.getAccountNumber(), BigDecimal.ZERO));
     }
 
     @Test
@@ -181,9 +181,9 @@ public class TransactionServiceTest {
     void transfer_withValidAmount_shouldUpdateBothBalances() {
         Account from = createAccount();
         Account to = createSecondAccount();
-        transactionService.deposit(from.getNumberAccount(), new BigDecimal("500.00"));
+        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
 
-        transactionService.transfer(from.getNumberAccount(), to.getNumberAccount(), new BigDecimal("200.00"));
+        transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("200.00"));
 
         assertEquals(0, new BigDecimal("300.00").compareTo(from.getBalance()));
         assertEquals(0, new BigDecimal("200.00").compareTo(to.getBalance()));
@@ -194,12 +194,12 @@ public class TransactionServiceTest {
     void transfer_withValidAmount_shouldRecordBothTransactions() {
         Account from = createAccount();
         Account to = createSecondAccount();
-        transactionService.deposit(from.getNumberAccount(), new BigDecimal("500.00"));
+        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
 
-        transactionService.transfer(from.getNumberAccount(), to.getNumberAccount(), new BigDecimal("200.00"));
+        transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("200.00"));
 
-        List<Transaction> fromHistory = transactionService.getHistory(from.getNumberAccount());
-        List<Transaction> toHistory = transactionService.getHistory(to.getNumberAccount());
+        List<Transaction> fromHistory = transactionService.getHistory(from.getAccountNumber());
+        List<Transaction> toHistory = transactionService.getHistory(to.getAccountNumber());
 
         assertTrue(fromHistory.stream().anyMatch(t -> t.getType() == TransactionType.OUTGOING_TRANSFER));
         assertTrue(toHistory.stream().anyMatch(t -> t.getType() == TransactionType.INCOMING_TRANSFER));
@@ -210,20 +210,20 @@ public class TransactionServiceTest {
     void transfer_withInsufficientBalance_shouldThrowException() {
         Account from = createAccount();
         Account to = createSecondAccount();
-        transactionService.deposit(from.getNumberAccount(), new BigDecimal("50.00"));
+        transactionService.deposit(from.getAccountNumber(), new BigDecimal("50.00"));
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getNumberAccount(), to.getNumberAccount(), new BigDecimal("100.00")));
+                transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Transferring to the same account should throw an exception")
     void transfer_toSameAccount_shouldThrowException() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("500.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("500.00"));
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(account.getNumberAccount(), account.getNumberAccount(), new BigDecimal("100.00")));
+                transactionService.transfer(account.getAccountNumber(), account.getAccountNumber(), new BigDecimal("100.00")));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class TransactionServiceTest {
         Account to = createSecondAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getNumberAccount(), to.getNumberAccount(), null));
+                transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), null));
     }
 
     @Test
@@ -242,27 +242,27 @@ public class TransactionServiceTest {
         Account to = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(NON_EXISTENT_ACCOUNT, to.getNumberAccount(), new BigDecimal("100.00")));
+                transactionService.transfer(NON_EXISTENT_ACCOUNT, to.getAccountNumber(), new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Transferring to a non-existent account should throw an exception")
     void transfer_toNonExistentAccount_shouldThrowException() {
         Account from = createAccount();
-        transactionService.deposit(from.getNumberAccount(), new BigDecimal("500.00"));
+        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getNumberAccount(), NON_EXISTENT_ACCOUNT, new BigDecimal("100.00")));
+                transactionService.transfer(from.getAccountNumber(), NON_EXISTENT_ACCOUNT, new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Getting balance should return the correct amount after operations")
     void getBalance_afterDepositAndWithdrawal_shouldReturnCorrectBalance() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("500.00"));
-        transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("150.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("500.00"));
+        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("150.00"));
 
-        BigDecimal balance = transactionService.getBalance(account.getNumberAccount());
+        BigDecimal balance = transactionService.getBalance(account.getAccountNumber());
 
         assertEquals(0, new BigDecimal("350.00").compareTo(balance));
     }
@@ -286,7 +286,7 @@ public class TransactionServiceTest {
     void getHistory_withNoTransactions_shouldReturnEmptyList() {
         Account account = createAccount();
 
-        List<Transaction> history = transactionService.getHistory(account.getNumberAccount());
+        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
 
         assertNotNull(history);
         assertTrue(history.isEmpty());
@@ -296,10 +296,10 @@ public class TransactionServiceTest {
     @DisplayName("Getting history should return all transactions for the account")
     void getHistory_afterMultipleOperations_shouldReturnAllTransactions() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("300.00"));
-        transactionService.withdrawal(account.getNumberAccount(), new BigDecimal("100.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
+        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
 
-        List<Transaction> history = transactionService.getHistory(account.getNumberAccount());
+        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
 
         assertEquals(2, history.size());
     }
@@ -315,11 +315,11 @@ public class TransactionServiceTest {
     @DisplayName("Getting history by date range should return transactions within the range")
     void getHistoryByDate_withTransactionsInRange_shouldReturnThem() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("100.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
 
         LocalDate today = LocalDate.now();
         List<Transaction> history = transactionService.getHistoryByDate(
-                account.getNumberAccount(), today, today);
+                account.getAccountNumber(), today, today);
 
         assertEquals(1, history.size());
     }
@@ -328,11 +328,11 @@ public class TransactionServiceTest {
     @DisplayName("Getting history by date range with no matching transactions should return empty list")
     void getHistoryByDate_withNoTransactionsInRange_shouldReturnEmptyList() {
         Account account = createAccount();
-        transactionService.deposit(account.getNumberAccount(), new BigDecimal("100.00"));
+        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
 
         LocalDate past = LocalDate.now().minusYears(1);
         List<Transaction> history = transactionService.getHistoryByDate(
-                account.getNumberAccount(), past, past);
+                account.getAccountNumber(), past, past);
 
         assertTrue(history.isEmpty());
     }
@@ -343,7 +343,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getHistoryByDate(account.getNumberAccount(), null, LocalDate.now()));
+                transactionService.getHistoryByDate(account.getAccountNumber(), null, LocalDate.now()));
     }
 
     @Test
@@ -352,7 +352,7 @@ public class TransactionServiceTest {
         Account account = createAccount();
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getHistoryByDate(account.getNumberAccount(), LocalDate.now(), null));
+                transactionService.getHistoryByDate(account.getAccountNumber(), LocalDate.now(), null));
     }
 
     @Test
