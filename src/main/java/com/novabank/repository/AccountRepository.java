@@ -2,7 +2,10 @@ package com.novabank.repository;
 
 import com.novabank.model.Account;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class AccountRepository {
     private final Map<String, Account> accounts = new HashMap<>();
@@ -34,12 +37,5 @@ public class AccountRepository {
         return accounts.values().stream()
                 .filter(a -> a.getClient() != null && a.getClient().getId().equals(clientId))
                 .toList();
-    }
-
-    public boolean existsByAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.isBlank()) {
-            throw new IllegalArgumentException("Account number cannot be null or blank.");
-        }
-        return accounts.containsKey(accountNumber);
     }
 }

@@ -46,12 +46,6 @@ public class Account {
         this.client = client;
     }
 
-    /*
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-    */
-
     public void credit(BigDecimal amount) {
         this.balance = this.balance.add(amount);
     }
@@ -60,6 +54,7 @@ public class Account {
         if (amount.compareTo(this.balance) > 0){
             throw new IllegalStateException("Insufficient balance");
         }
+        this.balance = this.balance.subtract(amount);
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
