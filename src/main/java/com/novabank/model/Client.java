@@ -12,7 +12,7 @@ public class Client {
     private String phone;
     private LocalDateTime createdAt;
 
-    public Client(String name, String surname, String dni, String email, String phone){
+    public Client(String name, String surname, String dni, String email, String phone) {
         this.name = name;
         this.surname = surname;
         this.dni = dni;

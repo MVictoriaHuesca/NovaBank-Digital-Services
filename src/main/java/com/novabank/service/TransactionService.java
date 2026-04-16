@@ -23,7 +23,7 @@ public class TransactionService {
 
         Account account = searchAccountOrThrow(accountNumber);
 
-        account.setBalance(account.getBalance().add(amount));
+        account.credit(amount);
 
         Transaction transaction = new Transaction(account, TransactionType.DEPOSIT, amount);
         transactionRepository.save(transaction);
@@ -36,7 +36,7 @@ public class TransactionService {
         Account account = searchAccountOrThrow(accountNumber);
         validateEnoughBalance(account, amount);
 
-        account.setBalance(account.getBalance().subtract(amount));
+        account.debit(amount);
 
         Transaction transaction = new Transaction(account, TransactionType.WITHDRAWAL, amount);
         transactionRepository.save(transaction);
@@ -52,10 +52,10 @@ public class TransactionService {
         validateDifferentAccounts(fromAccountNumber, toAccountNumber);
         validateEnoughBalance(from, amount);
 
-        from.setBalance(from.getBalance().subtract(amount));
+        from.debit(amount);
 
         try {
-            to.setBalance(to.getBalance().add(amount));
+            to.credit(amount);
 
             Transaction fromTransaction = new Transaction(from, TransactionType.OUTGOING_TRANSFER, amount);
             transactionRepository.save(fromTransaction);
@@ -64,7 +64,7 @@ public class TransactionService {
             transactionRepository.save(toTransaction);
 
         } catch(RuntimeException e) {
-            from.setBalance(from.getBalance().add(amount));
+            from.credit(amount);
             throw e;
         }
     }
