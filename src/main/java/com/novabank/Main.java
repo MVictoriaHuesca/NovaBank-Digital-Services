@@ -2,6 +2,7 @@ package com.novabank;
 
 import com.novabank.console.AccountMenu;
 import com.novabank.console.ClientMenu;
+import com.novabank.console.TransactionMenu;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.ClientRepository;
 import com.novabank.repository.TransactionRepository;
@@ -26,6 +27,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         ClientMenu clientMenu = new ClientMenu(clientService, scanner);
         AccountMenu accountMenu = new AccountMenu(accountService, scanner);
+        TransactionMenu transactionmenu = new TransactionMenu(transactionService, scanner);
 
         boolean running = true;
         while(running) {
@@ -35,6 +37,7 @@ public class Main {
             switch(option) {
                 case "1" -> clientMenu.show();
                 case "2" -> accountMenu.show();
+                case "3" -> transactionmenu.show();
                 case "5" -> {
                     System.out.println("See you soon.");
                     running = false;
