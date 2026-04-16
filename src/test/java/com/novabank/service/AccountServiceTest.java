@@ -37,8 +37,8 @@ public class AccountServiceTest {
 
         // Assert
         assertNotNull(account);
-        assertNotNull(account.getNumberAccount());
-        assertTrue(account.getNumberAccount().startsWith("ES"));
+        assertNotNull(account.getAccountNumber());
+        assertTrue(account.getAccountNumber().startsWith("ES"));
         assertEquals(0, account.getBalance().compareTo(java.math.BigDecimal.ZERO));
         assertEquals(client.getId(), account.getClient().getId());
     }
@@ -54,7 +54,7 @@ public class AccountServiceTest {
         Account c2 = accountService.createAccount(client.getId());
 
         // Assert
-        assertNotEquals(c1.getNumberAccount(), c2.getNumberAccount());
+        assertNotEquals(c1.getAccountNumber(), c2.getAccountNumber());
     }
 
     @Test
