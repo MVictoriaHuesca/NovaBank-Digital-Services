@@ -12,7 +12,6 @@ public class Client {
     private String phone;
     private LocalDateTime createdAt;
 
-    // Public constructor
     public Client(String name, String surname, String dni, String email, String phone){
         this.name = name;
         this.surname = surname;
@@ -22,7 +21,6 @@ public class Client {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters
     public Long getId(){
         return id;
     }
@@ -51,7 +49,6 @@ public class Client {
         return createdAt;
     }
 
-    // Setters
     public void setId(Long id) {
         this.id = id;
     }

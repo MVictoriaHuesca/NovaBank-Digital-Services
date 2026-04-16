@@ -8,14 +8,14 @@ import java.util.List;
 public class Account {
 
     private Long id;
-    private String numberAccount;
+    private String accountNumber;
     private Client client;
     private BigDecimal balance;
     private LocalDateTime createdAt;
 
-    public Account(Client client, String numberAccount) {
+    public Account(Client client, String accountNumber) {
         this.client = client;
-        this.numberAccount = numberAccount;
+        this.accountNumber = accountNumber;
         this.balance = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
     }
@@ -24,8 +24,8 @@ public class Account {
         return id;
     }
 
-    public String getNumberAccount() {
-        return numberAccount;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
     public Client getClient() {
@@ -54,15 +54,15 @@ public class Account {
         this.createdAt = createdAt;
     }
 
-    public void setNumberAccount(String numberAccount) {
-        this.numberAccount = numberAccount;
+    public void setAccountNumber(String numberAccount) {
+        this.accountNumber = accountNumber;
     }
 
 
     @Override
     public String toString(){
         return String.format("Account{numberAccount='%s', client='%s', balance=%s}",
-                numberAccount,
+                accountNumber,
                 client != null ? client.getName() : "Client not found",
                 balance.toPlainString());
     }

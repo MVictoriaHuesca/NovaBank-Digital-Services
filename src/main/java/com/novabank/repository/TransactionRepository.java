@@ -22,7 +22,7 @@ public class TransactionRepository {
             throw new IllegalArgumentException("Account number cannot be null or blank.");
         }
         return transactions.values().stream()
-                .filter(t -> t.getAccount() != null && t.getAccount().getNumberAccount().equals(accountNumber))
+                .filter(t -> t.getAccount() != null && t.getAccount().getAccountNumber().equals(accountNumber))
                 .sorted(Comparator.comparing(Transaction::getCreatedAt).reversed())
                 .toList();
     }
@@ -41,7 +41,7 @@ public class TransactionRepository {
             throw new IllegalArgumentException("Start date cannot be after end date.");
         }
         return transactions.values().stream()
-                .filter(t -> t.getAccount() != null && t.getAccount().getNumberAccount().equals(accountNumber))
+                .filter(t -> t.getAccount() != null && t.getAccount().getAccountNumber().equals(accountNumber))
                 .filter(t -> {
                     LocalDate date = t.getCreatedAt().toLocalDate();
                     return !date.isBefore(from) && !date.isAfter(to);

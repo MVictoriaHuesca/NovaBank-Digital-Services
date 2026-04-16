@@ -46,7 +46,7 @@ public class TransactionMenu {
             Account account = transactionService.deposit(number, amount);
             System.out.println();
             System.out.println("Deposit made successfully.");
-            System.out.println("Account:      " + account.getNumberAccount());
+            System.out.println("Account:      " + account.getAccountNumber());
             System.out.printf ("Amount:     +%,.2f €%n", amount);
             System.out.printf ("New balance: %,.2f €%n", account.getBalance());
         } catch (IllegalArgumentException e) {
@@ -64,7 +64,7 @@ public class TransactionMenu {
             Account account = transactionService.withdrawal(number, amount);
             System.out.println();
             System.out.println("Withdrawal successfully made.");
-            System.out.println("Account:      " + account.getNumberAccount());
+            System.out.println("Account:      " + account.getAccountNumber());
             System.out.printf ("Amount:     -%,.2f €%n", amount);
             System.out.printf ("New balance: %,.2f €%n", account.getBalance());
         } catch (IllegalArgumentException e) {

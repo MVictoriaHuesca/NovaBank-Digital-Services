@@ -47,7 +47,7 @@ public class AccountMenu {
             Account account = accountService.createAccount(clientId);
             System.out.println();
             System.out.println("Account created successfully.");
-            System.out.println("Account number: " + account.getNumberAccount());
+            System.out.println("Account number: " + account.getAccountNumber());
             System.out.println("Account holder: " + account.getClient().getName() + " " + account.getClient().getSurname()
                     + " (ID: " + account.getClient().getId() + ")");
             System.out.println("Starting balance:    0,00 €");
@@ -75,7 +75,7 @@ public class AccountMenu {
             System.out.println("-".repeat(45));
             for (Account a : accounts) {
                 System.out.printf("%-26s | %,.2f €%n",
-                        a.getNumberAccount(), a.getBalance());
+                        a.getAccountNumber(), a.getBalance());
             }
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -89,7 +89,7 @@ public class AccountMenu {
         try {
             Account a = accountService.searchByNumberAccount(number);
             System.out.println();
-            System.out.println("Account number: " + a.getNumberAccount());
+            System.out.println("Account number: " + a.getAccountNumber());
             System.out.println("Account holder: " + a.getClient().getName() + " " + a.getClient().getSurname());
             System.out.printf ("Balance:            %,.2f €%n", a.getBalance());
             System.out.println("Creation date: " + a.getCreatedAt().format(DATE_FORMAT));

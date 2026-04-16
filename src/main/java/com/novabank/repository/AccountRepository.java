@@ -16,7 +16,7 @@ public class AccountRepository {
         if(account.getId() == null) {
             account.setId(nextId++);
         }
-        accounts.put(account.getNumberAccount(), account);
+        accounts.put(account.getAccountNumber(), account);
         return account;
     }
 
