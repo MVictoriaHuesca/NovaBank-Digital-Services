@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +40,7 @@ public class AccountServiceTest {
         assertNotNull(account);
         assertNotNull(account.getNumberAccount());
         assertTrue(account.getNumberAccount().startsWith("ES"));
-        assertEquals(0, account.getBalance().compareTo(java.math.BigDecimal.ZERO));
+        assertEquals(0, account.getBalance().compareTo(BigDecimal.ZERO));
         assertEquals(client.getId(), account.getClient().getId());
     }
 
