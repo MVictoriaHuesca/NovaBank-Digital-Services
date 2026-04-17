@@ -11,10 +11,14 @@ import com.novabank.service.AccountService;
 import com.novabank.service.ClientService;
 import com.novabank.service.TransactionService;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        
         System.out.println("Starting NovaBank Digital Services...");
 
         ClientRepository clientRepository = new ClientRepository();
@@ -25,7 +29,7 @@ public class Main {
         AccountService accountService = new AccountService(accountRepository, clientService);
         TransactionService transactionService = new TransactionService(accountService, transactionRepository);
 
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         ClientMenu clientMenu = new ClientMenu(clientService, scanner);
         AccountMenu accountMenu = new AccountMenu(accountService, scanner);
         TransactionMenu transactionMenu = new TransactionMenu(transactionService, scanner);

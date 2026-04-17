@@ -71,10 +71,18 @@ public class AccountMenu {
             System.out.println();
             System.out.println(
                     "Accounts of " + accounts.get(0).getClient().getName() + " " + accounts.get(0).getClient().getSurname() + ":");
-            System.out.printf("%-26s | %s%n", "Account number", "Balance");
-            System.out.println("-".repeat(45));
+
+            int maxAccLen = 26;
             for (Account a : accounts) {
-                System.out.printf("%-26s | %,.2f €%n",
+                maxAccLen = Math.max(maxAccLen, a.getAccountNumber().length());
+            }
+
+            String formatRow = "%-" + maxAccLen + "s | %s%n";
+
+            System.out.printf(formatRow, "Account number", "Balance");
+            System.out.println("-".repeat(maxAccLen + 15));
+            for (Account a : accounts) {
+                System.out.printf("%-" + maxAccLen + "s | %,.2f €%n",
                         a.getAccountNumber(), a.getBalance());
             }
         } catch (IllegalArgumentException e) {

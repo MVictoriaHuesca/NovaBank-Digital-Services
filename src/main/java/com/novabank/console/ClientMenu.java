@@ -112,13 +112,30 @@ public class ClientMenu {
             return;
         }
 
-        System.out.printf("%-6s | %-20s | %-12s | %-25s | %-12s%n",
-                "ID", "Name", "DNI", "Email", "Phone");
-        System.out.println("-".repeat(85));
+        int maxId = 6;
+        int maxName = 20;
+        int maxDni = 12;
+        int maxEmail = 25;
+        int maxPhone = 12;
+
+        for (Client c : clients) {
+            maxId = Math.max(maxId, String.valueOf(c.getId()).length());
+            maxName = Math.max(maxName, (c.getName() + " " + c.getSurname()).length());
+            maxDni = Math.max(maxDni, c.getDni().length());
+            maxEmail = Math.max(maxEmail, c.getEmail().length());
+            maxPhone = Math.max(maxPhone, c.getPhone().length());
+        }
+
+        String formatHeader = "%-" + maxId + "s | %-" + maxName + "s | %-" + maxDni + "s | %-" + maxEmail + "s | %-" + maxPhone + "s%n";
+        String formatRow = "%-" + maxId + "d | %-" + maxName + "s | %-" + maxDni + "s | %-" + maxEmail + "s | %-" + maxPhone + "s%n";
+
+        System.out.printf(formatHeader, "ID", "Name", "DNI", "Email", "Phone");
+        int totalLength = maxId + maxName + maxDni + maxEmail + maxPhone + 12;
+        System.out.println("-".repeat(totalLength));
 
         for (Client c : clients) {
             String fullName = c.getName() + " " + c.getSurname();
-            System.out.printf("%-6d | %-20s | %-12s | %-25s | %-12s%n",
+            System.out.printf(formatRow,
                     c.getId(),
                     fullName,
                     c.getDni(),
