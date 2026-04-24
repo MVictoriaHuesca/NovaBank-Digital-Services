@@ -11,13 +11,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientServiceTest {
-    private ClientRepository clientRepository;
     private ClientService clientService;
 
     @BeforeEach
     void setUp() {
-        clientRepository = new ClientRepository();
-        clientService = new ClientService(clientRepository);
+        clientService = new ClientService(new ClientRepository());
     }
 
     @Test

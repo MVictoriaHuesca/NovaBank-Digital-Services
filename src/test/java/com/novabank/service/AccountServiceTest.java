@@ -14,15 +14,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
-    private AccountRepository accountRepository;
     private ClientService clientService;
     private AccountService accountService;
 
     @BeforeEach
     void setUp() {
         clientService = new ClientService(new ClientRepository());
-        accountRepository = new AccountRepository();
-        accountService = new AccountService(accountRepository, clientService);
+        accountService = new AccountService(new AccountRepository(), clientService);
     }
 
     @Test
@@ -42,29 +40,21 @@ public class AccountServiceTest {
     @Test
     @DisplayName("Creating two accounts for the same client must generate different IBAN numbers")
     void createAccount_twoAccounts_mustHaveDifferentNumbers() {
-        // Arrange
         Client client = clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
 
-        // Act
         Account c1 = accountService.createAccount(client.getId());
         Account c2 = accountService.createAccount(client.getId());
 
-        // Assert
         assertNotEquals(c1.getAccountNumber(), c2.getAccountNumber());
     }
 
     @Test
     @DisplayName("Listing customer accounts should return only their accounts")
-    void listCustomerAccounts_withTwoAccounts_shouldReturnList() {
-        // Arrange
-        Client client = clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
+    void listCustomerAccounts_withTwoAccounts_shouldReturnList() {Client client = clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
         accountService.createAccount(client.getId());
         accountService.createAccount(client.getId());
-
-        // Act
         List<Account> accounts = accountService.listClientAccounts(client.getId());
 
-        // Assert
         assertEquals(2, accounts.size());
         accounts.forEach(a -> assertEquals(client.getId(), a.getClient().getId()));
     }
