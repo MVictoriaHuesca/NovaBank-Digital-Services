@@ -1,21 +1,30 @@
 package com.novabank.service;
 
+import com.novabank.config.ConnectionProvider;
 import com.novabank.model.Account;
 import com.novabank.model.Transaction;
 import com.novabank.model.TransactionType;
+import com.novabank.repository.AccountRepository;
 import com.novabank.repository.TransactionRepository;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
 public class TransactionService {
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final ConnectionProvider connectionProvider;
 
-    public TransactionService(AccountService accountService, TransactionRepository transactionRepository) {
+    public TransactionService(AccountService accountService, AccountRepository accountRepository,
+                              TransactionRepository transactionRepository, ConnectionProvider connectionProvider) {
         this.accountService = accountService;
+        this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.connectionProvider = connectionProvider;
     }
 
     public Account deposit(String accountNumber, BigDecimal amount) {
@@ -48,29 +57,34 @@ public class TransactionService {
 
     public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
         validatePositiveAmount(amount);
-
-        Account from = searchAccountOrThrow(fromAccountNumber);
-        Account to = searchAccountOrThrow(toAccountNumber);
         validateDifferentAccounts(fromAccountNumber, toAccountNumber);
-        validateEnoughBalance(from, amount);
 
-        from.debit(amount);
-        accountService.updateBalance(from.getId(), from.getBalance());
+        try (Connection conn = connectionProvider.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                Account from = searchAccountOrThrow(fromAccountNumber, conn);
+                Account to = searchAccountOrThrow(toAccountNumber, conn);
+                validateEnoughBalance(from, amount);
 
-        try {
-            to.credit(amount);
-            accountService.updateBalance(to.getId(), to.getBalance());
+                from.debit(amount);
+                accountRepository.updateBalance(from.getId(), from.getBalance(), conn);
 
-            Transaction fromTransaction = new Transaction(from, TransactionType.OUTGOING_TRANSFER, amount);
-            transactionRepository.save(fromTransaction);
+                to.credit(amount);
+                accountRepository.updateBalance(to.getId(), to.getBalance(), conn);
 
-            Transaction toTransaction = new Transaction(to, TransactionType.INCOMING_TRANSFER, amount);
-            transactionRepository.save(toTransaction);
+                Transaction fromTransaction = new Transaction(from, TransactionType.OUTGOING_TRANSFER, amount);
+                transactionRepository.save(fromTransaction, conn);
 
-        } catch(RuntimeException e) {
-            from.credit(amount);
-            accountService.updateBalance(from.getId(), from.getBalance());
-            throw e;
+                Transaction toTransaction = new Transaction(to, TransactionType.INCOMING_TRANSFER, amount);
+                transactionRepository.save(toTransaction, conn);
+
+                conn.commit();
+            } catch (RuntimeException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Transfer failed due to database error", e);
         }
     }
 
@@ -119,5 +133,14 @@ public class TransactionService {
             throw new IllegalArgumentException("ERROR: Account number cannot be null or blank.");
         }
         return accountService.searchByAccountNumber(accountNumber);
+    }
+
+    private Account searchAccountOrThrow(String accountNumber, Connection conn) {
+        if (accountNumber == null || accountNumber.isBlank()) {
+            throw new IllegalArgumentException("ERROR: Account number cannot be null or blank.");
+        }
+        return accountRepository.searchByAccountNumber(accountNumber, conn)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "ERROR: Could not find an account with number " + accountNumber + "."));
     }
 }

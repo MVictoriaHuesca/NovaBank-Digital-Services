@@ -1,5 +1,6 @@
 package com.novabank;
 
+import com.novabank.config.ConnectionProvider;
 import com.novabank.config.DatabaseConnectionManager;
 import com.novabank.controller.AccountController;
 import com.novabank.controller.ClientController;
@@ -41,7 +42,9 @@ public class Main {
 
         ClientService clientService = new ClientService(clientRepository);
         AccountService accountService = new AccountService(accountRepository, clientService);
-        TransactionService transactionService = new TransactionService(accountService, transactionRepository);
+        ConnectionProvider connectionProvider = DatabaseConnectionManager.getInstance()::getConnection;
+        TransactionService transactionService = new TransactionService(accountService, accountRepository,
+                transactionRepository, connectionProvider);
 
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         ClientController clientController         = new ClientController(clientService, new ClientView(scanner));

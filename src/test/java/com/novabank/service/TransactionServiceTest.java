@@ -10,8 +10,10 @@ import com.novabank.repository.inmemory.InMemoryTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,10 +27,13 @@ public class TransactionServiceTest {
     private static final String NON_EXISTENT_ACCOUNT = "ES00000000000000000000";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        Connection mockConnection = Mockito.mock(Connection.class);
         clientService = new ClientService(new InMemoryClientRepository());
-        accountService = new AccountService(new InMemoryAccountRepository(), clientService);
-        transactionService = new TransactionService(accountService, new InMemoryTransactionRepository());
+        InMemoryAccountRepository accountRepository = new InMemoryAccountRepository();
+        accountService = new AccountService(accountRepository, clientService);
+        transactionService = new TransactionService(accountService, accountRepository,
+                new InMemoryTransactionRepository(), () -> mockConnection);
     }
 
     private Account createAccount() {
