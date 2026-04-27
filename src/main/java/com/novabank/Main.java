@@ -1,5 +1,6 @@
 package com.novabank;
 
+import com.novabank.config.DatabaseConnectionManager;
 import com.novabank.controller.AccountController;
 import com.novabank.controller.ClientController;
 import com.novabank.controller.InquiryController;
@@ -24,6 +25,12 @@ public class Main {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         
         System.out.println("Starting NovaBank Digital Services...");
+        try {
+            DatabaseConnectionManager.getInstance().getConnection().close();
+            System.out.println("Database connection established.");
+        } catch (Exception e) {
+            System.out.println("ERROR: Could not connect to database. " + e.getMessage());
+        }
 
         ClientRepository clientRepository = new ClientRepository();
         AccountRepository accountRepository = new AccountRepository();
