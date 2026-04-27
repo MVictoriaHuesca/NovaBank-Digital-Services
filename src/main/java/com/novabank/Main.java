@@ -1,15 +1,19 @@
 package com.novabank;
 
-import com.novabank.console.AccountMenu;
-import com.novabank.console.ClientMenu;
-import com.novabank.console.InquiryMenu;
-import com.novabank.console.TransactionMenu;
+import com.novabank.controller.AccountController;
+import com.novabank.controller.ClientController;
+import com.novabank.controller.InquiryController;
+import com.novabank.controller.TransactionController;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.ClientRepository;
 import com.novabank.repository.TransactionRepository;
 import com.novabank.service.AccountService;
 import com.novabank.service.ClientService;
 import com.novabank.service.TransactionService;
+import com.novabank.view.AccountView;
+import com.novabank.view.ClientView;
+import com.novabank.view.InquiryView;
+import com.novabank.view.TransactionView;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -30,10 +34,10 @@ public class Main {
         TransactionService transactionService = new TransactionService(accountService, transactionRepository);
 
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
-        ClientMenu clientMenu = new ClientMenu(clientService, scanner);
-        AccountMenu accountMenu = new AccountMenu(accountService, scanner);
-        TransactionMenu transactionMenu = new TransactionMenu(transactionService, scanner);
-        InquiryMenu inquiryMenu = new InquiryMenu(transactionService, scanner);
+        ClientController clientController         = new ClientController(clientService, new ClientView(scanner));
+        AccountController accountController       = new AccountController(accountService, new AccountView(scanner));
+        TransactionController transactionController = new TransactionController(transactionService, new TransactionView(scanner));
+        InquiryController inquiryController       = new InquiryController(transactionService, new InquiryView(scanner));
 
         boolean running = true;
         while(running) {
@@ -41,10 +45,10 @@ public class Main {
             String option = scanner.nextLine().trim();
 
             switch(option) {
-                case "1" -> clientMenu.show();
-                case "2" -> accountMenu.show();
-                case "3" -> transactionMenu.show();
-                case "4" -> inquiryMenu.show();
+                case "1" -> clientController.show();
+                case "2" -> accountController.show();
+                case "3" -> transactionController.show();
+                case "4" -> inquiryController.show();
                 case "5" -> {
                     System.out.println("See you soon.");
                     running = false;
