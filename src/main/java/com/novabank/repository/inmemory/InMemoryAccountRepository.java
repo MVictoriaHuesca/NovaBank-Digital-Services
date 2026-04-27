@@ -61,6 +61,11 @@ public class InMemoryAccountRepository implements AccountRepository {
     }
 
     @Override
+    public long countAccounts() {
+        return accounts.size();
+    }
+
+    @Override
     public Optional<Account> searchByAccountNumber(String accountNumber, Connection conn) {
         return searchByAccountNumber(accountNumber);
     }

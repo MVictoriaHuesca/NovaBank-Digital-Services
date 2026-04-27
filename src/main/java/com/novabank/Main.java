@@ -8,9 +8,9 @@ import com.novabank.controller.TransactionController;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.ClientRepository;
 import com.novabank.repository.TransactionRepository;
-import com.novabank.repository.inmemory.InMemoryAccountRepository;
-import com.novabank.repository.inmemory.InMemoryClientRepository;
-import com.novabank.repository.inmemory.InMemoryTransactionRepository;
+import com.novabank.repository.jdbc.AccountRepositoryJdbc;
+import com.novabank.repository.jdbc.ClientRepositoryJdbc;
+import com.novabank.repository.jdbc.TransactionRepositoryJdbc;
 import com.novabank.service.AccountService;
 import com.novabank.service.ClientService;
 import com.novabank.service.TransactionService;
@@ -35,9 +35,9 @@ public class Main {
             System.out.println("ERROR: Could not connect to database. " + e.getMessage());
         }
 
-        ClientRepository clientRepository = new InMemoryClientRepository();
-        AccountRepository accountRepository = new InMemoryAccountRepository();
-        TransactionRepository transactionRepository = new InMemoryTransactionRepository();
+        ClientRepository clientRepository = new ClientRepositoryJdbc();
+        AccountRepository accountRepository = new AccountRepositoryJdbc();
+        TransactionRepository transactionRepository = new TransactionRepositoryJdbc();
 
         ClientService clientService = new ClientService(clientRepository);
         AccountService accountService = new AccountService(accountRepository, clientService);
