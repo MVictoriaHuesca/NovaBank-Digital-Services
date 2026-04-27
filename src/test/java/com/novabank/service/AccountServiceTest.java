@@ -2,8 +2,8 @@ package com.novabank.service;
 
 import com.novabank.model.Account;
 import com.novabank.model.Client;
-import com.novabank.repository.AccountRepository;
-import com.novabank.repository.ClientRepository;
+import com.novabank.repository.inmemory.InMemoryAccountRepository;
+import com.novabank.repository.inmemory.InMemoryClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,8 @@ public class AccountServiceTest {
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientService(new ClientRepository());
-        accountService = new AccountService(new AccountRepository(), clientService);
+        clientService = new ClientService(new InMemoryClientRepository());
+        accountService = new AccountService(new InMemoryAccountRepository(), clientService);
     }
 
     @Test

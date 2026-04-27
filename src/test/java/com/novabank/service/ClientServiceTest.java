@@ -1,7 +1,7 @@
 package com.novabank.service;
 
 import com.novabank.model.Client;
-import com.novabank.repository.ClientRepository;
+import com.novabank.repository.inmemory.InMemoryClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ public class ClientServiceTest {
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientService(new ClientRepository());
+        clientService = new ClientService(new InMemoryClientRepository());
     }
 
     @Test
