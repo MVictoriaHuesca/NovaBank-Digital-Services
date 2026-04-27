@@ -4,9 +4,9 @@ import com.novabank.model.Account;
 import com.novabank.model.Client;
 import com.novabank.model.Transaction;
 import com.novabank.model.TransactionType;
-import com.novabank.repository.AccountRepository;
-import com.novabank.repository.ClientRepository;
-import com.novabank.repository.TransactionRepository;
+import com.novabank.repository.inmemory.InMemoryAccountRepository;
+import com.novabank.repository.inmemory.InMemoryClientRepository;
+import com.novabank.repository.inmemory.InMemoryTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,9 +26,9 @@ public class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientService(new ClientRepository());
-        accountService = new AccountService(new AccountRepository(), clientService);
-        transactionService = new TransactionService(accountService, new TransactionRepository());
+        clientService = new ClientService(new InMemoryClientRepository());
+        accountService = new AccountService(new InMemoryAccountRepository(), clientService);
+        transactionService = new TransactionService(accountService, new InMemoryTransactionRepository());
     }
 
     private Account createAccount() {
