@@ -13,6 +13,8 @@ public interface AccountRepository {
     List<Account> searchByClientId(Long clientId);
     Account updateBalance(Long accountId, BigDecimal newBalance);
 
+    long countAccounts();
+
     Optional<Account> searchByAccountNumber(String accountNumber, Connection conn);
     Account updateBalance(Long accountId, BigDecimal newBalance, Connection conn);
 }

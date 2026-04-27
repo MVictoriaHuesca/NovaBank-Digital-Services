@@ -24,6 +24,7 @@ public class TransactionService {
         Account account = searchAccountOrThrow(accountNumber);
 
         account.credit(amount);
+        accountService.updateBalance(account.getId(), account.getBalance());
 
         Transaction transaction = new Transaction(account, TransactionType.DEPOSIT, amount);
         transactionRepository.save(transaction);
@@ -37,6 +38,7 @@ public class TransactionService {
         validateEnoughBalance(account, amount);
 
         account.debit(amount);
+        accountService.updateBalance(account.getId(), account.getBalance());
 
         Transaction transaction = new Transaction(account, TransactionType.WITHDRAWAL, amount);
         transactionRepository.save(transaction);
@@ -53,9 +55,11 @@ public class TransactionService {
         validateEnoughBalance(from, amount);
 
         from.debit(amount);
+        accountService.updateBalance(from.getId(), from.getBalance());
 
         try {
             to.credit(amount);
+            accountService.updateBalance(to.getId(), to.getBalance());
 
             Transaction fromTransaction = new Transaction(from, TransactionType.OUTGOING_TRANSFER, amount);
             transactionRepository.save(fromTransaction);
@@ -65,6 +69,7 @@ public class TransactionService {
 
         } catch(RuntimeException e) {
             from.credit(amount);
+            accountService.updateBalance(from.getId(), from.getBalance());
             throw e;
         }
     }
