@@ -4,17 +4,19 @@ import com.novabank.model.Account;
 import com.novabank.model.Client;
 import com.novabank.repository.AccountRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final ClientService clientService;
-    private long nextAccountNumber = 1L;
+    private long nextAccountNumber;
 
     public AccountService(AccountRepository accountRepository, ClientService clientService) {
         this.accountRepository = accountRepository;
         this.clientService = clientService;
+        this.nextAccountNumber = accountRepository.countAccounts() + 1L;
     }
 
     public Account createAccount(Long clientId) {
@@ -35,6 +37,11 @@ public class AccountService {
         return accountRepository.searchByAccountNumber(accountNumber)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "ERROR: Could not find an account with number " + accountNumber + "."));
+    }
+
+    public void updateBalance(Long accountId, BigDecimal newBalance) {
+        // TODO #next-issue: wrap in a single JDBC transaction for atomicity
+        accountRepository.updateBalance(accountId, newBalance);
     }
 
     private String generateAccountNumber() {

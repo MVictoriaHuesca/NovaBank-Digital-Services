@@ -2,40 +2,19 @@ package com.novabank.repository;
 
 import com.novabank.model.Account;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-public class AccountRepository {
-    private final Map<String, Account> accounts = new HashMap<>();
+public interface AccountRepository {
+    Account save(Account account);
+    Optional<Account> searchByAccountNumber(String accountNumber);
+    List<Account> searchByClientId(Long clientId);
+    Account updateBalance(Long accountId, BigDecimal newBalance);
 
-    private long nextId = 1L;
+    long countAccounts();
 
-    public Account save(Account account) {
-        if (account == null) {
-            throw new IllegalArgumentException("Account cannot be null.");
-        }
-        if(account.getId() == null) {
-            account.setId(nextId++);
-        }
-        accounts.put(account.getAccountNumber(), account);
-        return account;
-    }
-
-    public Optional<Account> searchByAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.isBlank()) {
-            throw new IllegalArgumentException("Account number cannot be null or blank.");
-        }
-        return Optional.ofNullable(accounts.get(accountNumber));
-    }
-
-    public List<Account> searchByClientId(Long clientId) {
-        if (clientId == null) {
-            throw new IllegalArgumentException("Client ID cannot be null.");
-        }
-        return accounts.values().stream()
-                .filter(a -> a.getClient() != null && a.getClient().getId().equals(clientId))
-                .toList();
-    }
+    Optional<Account> searchByAccountNumber(String accountNumber, Connection conn);
+    Account updateBalance(Long accountId, BigDecimal newBalance, Connection conn);
 }

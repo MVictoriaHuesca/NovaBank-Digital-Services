@@ -33,3 +33,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
+database.properties
+
+modulo2.md

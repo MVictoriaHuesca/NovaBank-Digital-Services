@@ -1,99 +1,111 @@
 package com.novabank.service;
 
-import com.novabank.model.Account;
-import com.novabank.model.Client;
-import com.novabank.model.Transaction;
-import com.novabank.model.TransactionType;
+import com.novabank.config.ConnectionProvider;
+import com.novabank.model.*;
 import com.novabank.repository.AccountRepository;
-import com.novabank.repository.ClientRepository;
 import com.novabank.repository.TransactionRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
-    private ClientService clientService;
-    private AccountService accountService;
+
+    @Mock private AccountService accountService;
+    @Mock private AccountRepository accountRepository;
+    @Mock private TransactionRepository transactionRepository;
+    @Mock private ConnectionProvider connectionProvider;
+    @Mock private Connection mockConnection;
+
+    @InjectMocks
     private TransactionService transactionService;
 
+    private static final String ACCOUNT_NUMBER_1 = "ES91210000000000000001";
+    private static final String ACCOUNT_NUMBER_2 = "ES91210000000000000002";
     private static final String NON_EXISTENT_ACCOUNT = "ES00000000000000000000";
 
-    @BeforeEach
-    void setUp() {
-        clientService = new ClientService(new ClientRepository());
-        accountService = new AccountService(new AccountRepository(), clientService);
-        transactionService = new TransactionService(accountService, new TransactionRepository());
+    private Account buildAccount(long id, String number, BigDecimal balance) {
+        Client client = new ClientBuilder()
+                .name("Test").surname("User")
+                .dni("1234567" + id + "A").email("test" + id + "@email.com").phone("60000000" + id)
+                .build();
+        client.setId(id);
+        Account account = new Account(client, number);
+        account.setId(id);
+        if (balance.compareTo(BigDecimal.ZERO) > 0) account.credit(balance);
+        return account;
     }
 
-    private Account createAccount() {
-        Client client = clientService.save("Juan", "Pérez", "12345678A", "juan@email.com", "600123456");
-        return accountService.createAccount(client.getId());
+    private void stubTransferConnection() throws Exception {
+        when(connectionProvider.getConnection()).thenReturn(mockConnection);
     }
 
-    private Account createSecondAccount() {
-        Client client = clientService.save("Ana", "García", "87654321B", "ana@email.com", "600654321");
-        return accountService.createAccount(client.getId());
-    }
+    // --- deposit ---
 
     @Test
     @DisplayName("Depositing a valid amount should increase the account balance")
     void deposit_withValidAmount_shouldIncreaseBalance() {
-        Account account = createAccount();
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
-        Account result = transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
+        Account result = transactionService.deposit(ACCOUNT_NUMBER_1, new BigDecimal("100.00"));
 
         assertEquals(0, new BigDecimal("100.00").compareTo(result.getBalance()));
     }
 
     @Test
-    @DisplayName("Depositing a valid amount should record a DEPOSIT transaction")
+    @DisplayName("Depositing a valid amount should save a DEPOSIT transaction")
     void deposit_withValidAmount_shouldRecordTransaction() {
-        Account account = createAccount();
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("200.00"));
-        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
+        transactionService.deposit(ACCOUNT_NUMBER_1, new BigDecimal("200.00"));
 
-        assertEquals(1, history.size());
-        assertEquals(TransactionType.DEPOSIT, history.get(0).getType());
-        assertEquals(0, new BigDecimal("200.00").compareTo(history.get(0).getAmount()));
+        verify(transactionRepository).save(argThat(t ->
+                t.getType() == TransactionType.DEPOSIT &&
+                t.getAmount().compareTo(new BigDecimal("200.00")) == 0));
     }
 
     @Test
     @DisplayName("Depositing a null amount should throw an exception")
     void deposit_withNullAmount_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getAccountNumber(), null));
+                transactionService.deposit(ACCOUNT_NUMBER_1, null));
     }
 
     @Test
     @DisplayName("Depositing zero should throw an exception")
     void deposit_withZeroAmount_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getAccountNumber(), BigDecimal.ZERO));
+                transactionService.deposit(ACCOUNT_NUMBER_1, BigDecimal.ZERO));
     }
 
     @Test
     @DisplayName("Depositing a negative amount should throw an exception")
     void deposit_withNegativeAmount_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.deposit(account.getAccountNumber(), new BigDecimal("-50.00")));
+                transactionService.deposit(ACCOUNT_NUMBER_1, new BigDecimal("-50.00")));
     }
 
     @Test
     @DisplayName("Depositing into a non-existent account should throw an exception")
     void deposit_withNonExistentAccount_shouldThrowException() {
+        when(accountService.searchByAccountNumber(NON_EXISTENT_ACCOUNT))
+                .thenThrow(new IllegalArgumentException("ERROR: Could not find an account."));
+
         assertThrows(IllegalArgumentException.class, () ->
                 transactionService.deposit(NON_EXISTENT_ACCOUNT, new BigDecimal("100.00")));
     }
@@ -105,36 +117,37 @@ public class TransactionServiceTest {
                 transactionService.deposit(null, new BigDecimal("100.00")));
     }
 
+    // --- withdrawal ---
+
     @Test
     @DisplayName("Withdrawing a valid amount should decrease the account balance")
     void withdrawal_withValidAmount_shouldDecreaseBalance() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("300.00"));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
-        Account result = transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
+        Account result = transactionService.withdrawal(ACCOUNT_NUMBER_1, new BigDecimal("100.00"));
 
         assertEquals(0, new BigDecimal("200.00").compareTo(result.getBalance()));
     }
 
     @Test
-    @DisplayName("Withdrawing a valid amount should record a WITHDRAWAL transaction")
+    @DisplayName("Withdrawing a valid amount should save a WITHDRAWAL transaction")
     void withdrawal_withValidAmount_shouldRecordTransaction() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("300.00"));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
-        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
-        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
+        transactionService.withdrawal(ACCOUNT_NUMBER_1, new BigDecimal("100.00"));
 
-        assertTrue(history.stream().anyMatch(t -> t.getType() == TransactionType.WITHDRAWAL));
+        verify(transactionRepository).save(argThat(t -> t.getType() == TransactionType.WITHDRAWAL));
     }
 
     @Test
     @DisplayName("Withdrawing the exact balance should leave the account at zero")
     void withdrawal_withExactBalance_shouldLeaveZeroBalance() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("100.00"));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
-        Account result = transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
+        Account result = transactionService.withdrawal(ACCOUNT_NUMBER_1, new BigDecimal("100.00"));
 
         assertEquals(0, BigDecimal.ZERO.compareTo(result.getBalance()));
     }
@@ -142,127 +155,127 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Withdrawing more than the available balance should throw an exception")
     void withdrawal_withInsufficientBalance_shouldThrowException() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("50.00"));
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("50.00"));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00")));
+                transactionService.withdrawal(ACCOUNT_NUMBER_1, new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Withdrawing from an empty account should throw an exception")
     void withdrawal_fromEmptyAccount_shouldThrowException() {
-        Account account = createAccount();
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("10.00")));
+                transactionService.withdrawal(ACCOUNT_NUMBER_1, new BigDecimal("10.00")));
     }
 
     @Test
     @DisplayName("Withdrawing a null amount should throw an exception")
     void withdrawal_withNullAmount_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getAccountNumber(), null));
+                transactionService.withdrawal(ACCOUNT_NUMBER_1, null));
     }
 
     @Test
     @DisplayName("Withdrawing zero should throw an exception")
     void withdrawal_withZeroAmount_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.withdrawal(account.getAccountNumber(), BigDecimal.ZERO));
+                transactionService.withdrawal(ACCOUNT_NUMBER_1, BigDecimal.ZERO));
     }
+
+    // --- transfer ---
 
     @Test
     @DisplayName("Transferring a valid amount should update both account balances correctly")
-    void transfer_withValidAmount_shouldUpdateBothBalances() {
-        Account from = createAccount();
-        Account to = createSecondAccount();
-        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
+    void transfer_withValidAmount_shouldUpdateBothBalances() throws Exception {
+        Account from = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("500.00"));
+        Account to   = buildAccount(2L, ACCOUNT_NUMBER_2, BigDecimal.ZERO);
+        stubTransferConnection();
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_1, mockConnection)).thenReturn(Optional.of(from));
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_2, mockConnection)).thenReturn(Optional.of(to));
 
-        transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("200.00"));
+        transactionService.transfer(ACCOUNT_NUMBER_1, ACCOUNT_NUMBER_2, new BigDecimal("200.00"));
 
         assertEquals(0, new BigDecimal("300.00").compareTo(from.getBalance()));
         assertEquals(0, new BigDecimal("200.00").compareTo(to.getBalance()));
     }
 
     @Test
-    @DisplayName("Transferring should record OUTGOING and INCOMING transactions")
-    void transfer_withValidAmount_shouldRecordBothTransactions() {
-        Account from = createAccount();
-        Account to = createSecondAccount();
-        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
+    @DisplayName("Transferring should save OUTGOING and INCOMING transactions")
+    void transfer_withValidAmount_shouldRecordBothTransactions() throws Exception {
+        Account from = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("500.00"));
+        Account to   = buildAccount(2L, ACCOUNT_NUMBER_2, BigDecimal.ZERO);
+        stubTransferConnection();
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_1, mockConnection)).thenReturn(Optional.of(from));
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_2, mockConnection)).thenReturn(Optional.of(to));
 
-        transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("200.00"));
+        transactionService.transfer(ACCOUNT_NUMBER_1, ACCOUNT_NUMBER_2, new BigDecimal("200.00"));
 
-        List<Transaction> fromHistory = transactionService.getHistory(from.getAccountNumber());
-        List<Transaction> toHistory = transactionService.getHistory(to.getAccountNumber());
-
-        assertTrue(fromHistory.stream().anyMatch(t -> t.getType() == TransactionType.OUTGOING_TRANSFER));
-        assertTrue(toHistory.stream().anyMatch(t -> t.getType() == TransactionType.INCOMING_TRANSFER));
+        verify(transactionRepository).save(argThat(t -> t.getType() == TransactionType.OUTGOING_TRANSFER), eq(mockConnection));
+        verify(transactionRepository).save(argThat(t -> t.getType() == TransactionType.INCOMING_TRANSFER), eq(mockConnection));
     }
 
     @Test
     @DisplayName("Transferring with insufficient balance should throw an exception")
-    void transfer_withInsufficientBalance_shouldThrowException() {
-        Account from = createAccount();
-        Account to = createSecondAccount();
-        transactionService.deposit(from.getAccountNumber(), new BigDecimal("50.00"));
+    void transfer_withInsufficientBalance_shouldThrowException() throws Exception {
+        Account from = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("50.00"));
+        Account to   = buildAccount(2L, ACCOUNT_NUMBER_2, BigDecimal.ZERO);
+        stubTransferConnection();
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_1, mockConnection)).thenReturn(Optional.of(from));
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_2, mockConnection)).thenReturn(Optional.of(to));
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), new BigDecimal("100.00")));
+                transactionService.transfer(ACCOUNT_NUMBER_1, ACCOUNT_NUMBER_2, new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Transferring to the same account should throw an exception")
     void transfer_toSameAccount_shouldThrowException() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("500.00"));
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(account.getAccountNumber(), account.getAccountNumber(), new BigDecimal("100.00")));
+                transactionService.transfer(ACCOUNT_NUMBER_1, ACCOUNT_NUMBER_1, new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Transferring a null amount should throw an exception")
     void transfer_withNullAmount_shouldThrowException() {
-        Account from = createAccount();
-        Account to = createSecondAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getAccountNumber(), to.getAccountNumber(), null));
+                transactionService.transfer(ACCOUNT_NUMBER_1, ACCOUNT_NUMBER_2, null));
     }
 
     @Test
     @DisplayName("Transferring from a non-existent account should throw an exception")
-    void transfer_fromNonExistentAccount_shouldThrowException() {
-        Account to = createAccount();
+    void transfer_fromNonExistentAccount_shouldThrowException() throws Exception {
+        stubTransferConnection();
+        when(accountRepository.searchByAccountNumber(NON_EXISTENT_ACCOUNT, mockConnection)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(NON_EXISTENT_ACCOUNT, to.getAccountNumber(), new BigDecimal("100.00")));
+                transactionService.transfer(NON_EXISTENT_ACCOUNT, ACCOUNT_NUMBER_2, new BigDecimal("100.00")));
     }
 
     @Test
     @DisplayName("Transferring to a non-existent account should throw an exception")
-    void transfer_toNonExistentAccount_shouldThrowException() {
-        Account from = createAccount();
-        transactionService.deposit(from.getAccountNumber(), new BigDecimal("500.00"));
+    void transfer_toNonExistentAccount_shouldThrowException() throws Exception {
+        Account from = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("500.00"));
+        stubTransferConnection();
+        when(accountRepository.searchByAccountNumber(ACCOUNT_NUMBER_1, mockConnection)).thenReturn(Optional.of(from));
+        when(accountRepository.searchByAccountNumber(NON_EXISTENT_ACCOUNT, mockConnection)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.transfer(from.getAccountNumber(), NON_EXISTENT_ACCOUNT, new BigDecimal("100.00")));
+                transactionService.transfer(ACCOUNT_NUMBER_1, NON_EXISTENT_ACCOUNT, new BigDecimal("100.00")));
     }
 
-    @Test
-    @DisplayName("Getting balance should return the correct amount after operations")
-    void getBalance_afterDepositAndWithdrawal_shouldReturnCorrectBalance() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("500.00"));
-        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("150.00"));
+    // --- getBalance ---
 
-        BigDecimal balance = transactionService.getBalance(account.getAccountNumber());
+    @Test
+    @DisplayName("Getting balance should return the correct amount")
+    void getBalance_shouldReturnCorrectBalance() {
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, new BigDecimal("350.00"));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
+
+        BigDecimal balance = transactionService.getBalance(ACCOUNT_NUMBER_1);
 
         assertEquals(0, new BigDecimal("350.00").compareTo(balance));
     }
@@ -270,6 +283,9 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Getting balance for a non-existent account should throw an exception")
     void getBalance_withNonExistentAccount_shouldThrowException() {
+        when(accountService.searchByAccountNumber(NON_EXISTENT_ACCOUNT))
+                .thenThrow(new IllegalArgumentException("ERROR: Could not find an account."));
+
         assertThrows(IllegalArgumentException.class, () ->
                 transactionService.getBalance(NON_EXISTENT_ACCOUNT));
     }
@@ -281,12 +297,16 @@ public class TransactionServiceTest {
                 transactionService.getBalance(null));
     }
 
+    // --- getHistory ---
+
     @Test
     @DisplayName("Getting history with no transactions should return an empty list")
     void getHistory_withNoTransactions_shouldReturnEmptyList() {
-        Account account = createAccount();
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
+        when(transactionRepository.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(List.of());
 
-        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
+        List<Transaction> history = transactionService.getHistory(ACCOUNT_NUMBER_1);
 
         assertNotNull(history);
         assertTrue(history.isEmpty());
@@ -295,11 +315,14 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Getting history should return all transactions for the account")
     void getHistory_afterMultipleOperations_shouldReturnAllTransactions() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("300.00"));
-        transactionService.withdrawal(account.getAccountNumber(), new BigDecimal("100.00"));
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
+        List<Transaction> transactions = List.of(
+                TransactionFactory.createDeposit(account, new BigDecimal("300.00")),
+                TransactionFactory.createWithdrawal(account, new BigDecimal("100.00")));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
+        when(transactionRepository.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(transactions);
 
-        List<Transaction> history = transactionService.getHistory(account.getAccountNumber());
+        List<Transaction> history = transactionService.getHistory(ACCOUNT_NUMBER_1);
 
         assertEquals(2, history.size());
     }
@@ -307,19 +330,27 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Getting history for a non-existent account should throw an exception")
     void getHistory_withNonExistentAccount_shouldThrowException() {
+        when(accountService.searchByAccountNumber(NON_EXISTENT_ACCOUNT))
+                .thenThrow(new IllegalArgumentException("ERROR: Could not find an account."));
+
         assertThrows(IllegalArgumentException.class, () ->
                 transactionService.getHistory(NON_EXISTENT_ACCOUNT));
     }
 
+    // --- getHistoryByDate ---
+
     @Test
     @DisplayName("Getting history by date range should return transactions within the range")
     void getHistoryByDate_withTransactionsInRange_shouldReturnThem() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
-
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
         LocalDate today = LocalDate.now();
-        List<Transaction> history = transactionService.getHistoryByDate(
-                account.getAccountNumber(), today, today);
+        List<Transaction> transactions = List.of(
+                TransactionFactory.createDeposit(account, new BigDecimal("100.00")));
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
+        when(transactionRepository.searchByAccountNumberAndDateRange(ACCOUNT_NUMBER_1, today, today))
+                .thenReturn(transactions);
+
+        List<Transaction> history = transactionService.getHistoryByDate(ACCOUNT_NUMBER_1, today, today);
 
         assertEquals(1, history.size());
     }
@@ -327,12 +358,13 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Getting history by date range with no matching transactions should return empty list")
     void getHistoryByDate_withNoTransactionsInRange_shouldReturnEmptyList() {
-        Account account = createAccount();
-        transactionService.deposit(account.getAccountNumber(), new BigDecimal("100.00"));
-
+        Account account = buildAccount(1L, ACCOUNT_NUMBER_1, BigDecimal.ZERO);
         LocalDate past = LocalDate.now().minusYears(1);
-        List<Transaction> history = transactionService.getHistoryByDate(
-                account.getAccountNumber(), past, past);
+        when(accountService.searchByAccountNumber(ACCOUNT_NUMBER_1)).thenReturn(account);
+        when(transactionRepository.searchByAccountNumberAndDateRange(ACCOUNT_NUMBER_1, past, past))
+                .thenReturn(List.of());
+
+        List<Transaction> history = transactionService.getHistoryByDate(ACCOUNT_NUMBER_1, past, past);
 
         assertTrue(history.isEmpty());
     }
@@ -340,24 +372,23 @@ public class TransactionServiceTest {
     @Test
     @DisplayName("Getting history by date range with null start date should throw an exception")
     void getHistoryByDate_withNullFromDate_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getHistoryByDate(account.getAccountNumber(), null, LocalDate.now()));
+                transactionService.getHistoryByDate(ACCOUNT_NUMBER_1, null, LocalDate.now()));
     }
 
     @Test
     @DisplayName("Getting history by date range with null end date should throw an exception")
     void getHistoryByDate_withNullToDate_shouldThrowException() {
-        Account account = createAccount();
-
         assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getHistoryByDate(account.getAccountNumber(), LocalDate.now(), null));
+                transactionService.getHistoryByDate(ACCOUNT_NUMBER_1, LocalDate.now(), null));
     }
 
     @Test
     @DisplayName("Getting history by date range for a non-existent account should throw an exception")
     void getHistoryByDate_withNonExistentAccount_shouldThrowException() {
+        when(accountService.searchByAccountNumber(NON_EXISTENT_ACCOUNT))
+                .thenThrow(new IllegalArgumentException("ERROR: Could not find an account."));
+
         assertThrows(IllegalArgumentException.class, () ->
                 transactionService.getHistoryByDate(NON_EXISTENT_ACCOUNT, LocalDate.now(), LocalDate.now()));
     }
