@@ -3,7 +3,7 @@ package com.novabank.service;
 import com.novabank.config.ConnectionProvider;
 import com.novabank.model.Account;
 import com.novabank.model.Transaction;
-import com.novabank.model.TransactionType;
+import com.novabank.model.TransactionFactory;
 import com.novabank.repository.AccountRepository;
 import com.novabank.repository.TransactionRepository;
 
@@ -35,7 +35,7 @@ public class TransactionService {
         account.credit(amount);
         accountService.updateBalance(account.getId(), account.getBalance());
 
-        Transaction transaction = new Transaction(account, TransactionType.DEPOSIT, amount);
+        Transaction transaction = TransactionFactory.createDeposit(account, amount);
         transactionRepository.save(transaction);
 
         return account;
@@ -49,7 +49,7 @@ public class TransactionService {
         account.debit(amount);
         accountService.updateBalance(account.getId(), account.getBalance());
 
-        Transaction transaction = new Transaction(account, TransactionType.WITHDRAWAL, amount);
+        Transaction transaction = TransactionFactory.createWithdrawal(account, amount);
         transactionRepository.save(transaction);
 
         return account;
@@ -72,10 +72,10 @@ public class TransactionService {
                 to.credit(amount);
                 accountRepository.updateBalance(to.getId(), to.getBalance(), conn);
 
-                Transaction fromTransaction = new Transaction(from, TransactionType.OUTGOING_TRANSFER, amount);
+                Transaction fromTransaction = TransactionFactory.createOutgoingTransfer(from, amount);
                 transactionRepository.save(fromTransaction, conn);
 
-                Transaction toTransaction = new Transaction(to, TransactionType.INCOMING_TRANSFER, amount);
+                Transaction toTransaction = TransactionFactory.createIncomingTransfer(to, amount);
                 transactionRepository.save(toTransaction, conn);
 
                 conn.commit();
