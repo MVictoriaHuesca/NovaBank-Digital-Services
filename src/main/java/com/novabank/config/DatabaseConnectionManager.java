@@ -26,8 +26,8 @@ public class DatabaseConnectionManager {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load database.properties", e);
         }
-        this.url      = props.getProperty("db.url");
-        this.user     = props.getProperty("db.user");
+        this.url = props.getProperty("db.url");
+        this.user = props.getProperty("db.user");
         this.password = props.getProperty("db.password");
     }
 
