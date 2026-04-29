@@ -182,6 +182,7 @@ src/
 │   │       └── InquiryView.java
 │   └── resources/
 │       └── schema.sql
+│       └── database.properties.example
 └── test/
     └── java/com/novabank/
         ├── service/
