@@ -1,6 +1,6 @@
 # NovaBank Digital Services
 
-Interactive console banking application developed as part of the NTT Backend Java Training Programme — Module 2: Layered Architecture and PostgreSQL Persistence.
+Interactive console banking application developed as part of the NTT Backend Java Training Programme - Module 2: Layered Architecture and PostgreSQL Persistence.
 
 ## Description
 
@@ -182,6 +182,8 @@ src/
 │   │       └── InquiryView.java
 │   └── resources/
 │       └── schema.sql
+|       └── database.properties.example
+│
 └── test/
     └── java/com/novabank/
         ├── service/
